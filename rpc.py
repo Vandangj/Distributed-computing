@@ -2,54 +2,44 @@
 
 import csv
 
-# ---------------- SERVER SIDE ----------------
-
-# Remote functions available on the server
+# SERVER SIDE
 remote = {
-    "processData": lambda x: x * 2,
+    "processdata": lambda x: x * 2,
     "square": lambda x: x * x,
     "increment": lambda x: x + 1
 }
 
-# Function to receive and execute client requests
 def server(method, param):
+    method = method.strip().lower()
+    print("[SERVER] Request received:", method, param)
 
-    print(f"[SERVER] Received request: {method}({param})")
-
-    # Dispatch the requested method
     if method in remote:
-
-        print(f"[SERVER] Executing {method}...")
-
+        print("[SERVER] Executing method...")
         result = remote[method](param)
-
-        print(f"[SERVER] Sending result: {result}")
-
+        print("[SERVER] Sending result:", result)
         return result
 
-    else:
-        return "Method not found"
+    return "Method not found"
 
 
-# ---------------- CLIENT SIDE ----------------
+# CLIENT SIDE
+with open(r"C:\Users\vandan\requests.csv", newline="", encoding="utf-8-sig") as file:
+    reader = csv.DictReader(file)
 
-# Read requests from CSV file
-for r in csv.DictReader(open("rpc_calls.csv"), skipinitialspace=True):
+    for r in reader:
+        if not r or not r.get("method_name"):
+            continue
 
-    client = r["client_name"]
-    method = r["method_name"]
-    param = int(r["param_value"])
+        client = r["client_name"]
+        method = r["method_name"].strip().lower()
+        param = int(r["param_value"])
 
-    print(f"\n[CLIENT] {client} sending request: {method}({param})")
+        print(f"\n[CLIENT] {client} sending {method}({param})")
+        print("[CLIENT] Marshalling parameter:", param)
 
-    # Marshalling: preparing arguments for transmission
-    print(f"[CLIENT] Marshalling parameter: {param}")
+        result = server(method, param)
 
-    # Send request to server and receive result
-    result = server(method, param)
-
-    # Display returned result
-    print(f"[CLIENT] Received result: {result}")
+        print("[CLIENT] Received result:", result)
 
 //// code ends here 
 
