@@ -1,15 +1,62 @@
 # Q: Simulate an RPC/RMI client-server procedure dispatcher that reads method calls from a CSV, marshals arguments, executes the remote function and prints the result.
+
 import csv
-remote = {"processData": lambda x: x * 2,
-          "square": lambda x: x * x,
-          "increment": lambda x: x + 1}
 
+# ---------------- SERVER SIDE ----------------
+
+# Remote functions available on the server
+remote = {
+    "processData": lambda x: x * 2,
+    "square": lambda x: x * x,
+    "increment": lambda x: x + 1
+}
+
+# Function to receive and execute client requests
+def server(method, param):
+
+    print(f"[SERVER] Received request: {method}({param})")
+
+    # Dispatch the requested method
+    if method in remote:
+
+        print(f"[SERVER] Executing {method}...")
+
+        result = remote[method](param)
+
+        print(f"[SERVER] Sending result: {result}")
+
+        return result
+
+    else:
+        return "Method not found"
+
+
+# ---------------- CLIENT SIDE ----------------
+
+# Read requests from CSV file
 for r in csv.DictReader(open("rpc_calls.csv"), skipinitialspace=True):
-    m, p = r["method_name"], int(r["param_value"])
-    print(f"[DISPATCH] {r['client_name']} invoking {m}({p})")
-    print(f"[SERVER EXECUTION] Processing parameter {p}")
-    print(f"[RETURN] Result = {remote[m](p)}")
 
+    client = r["client_name"]
+    method = r["method_name"]
+    param = int(r["param_value"])
+
+    print(f"\n[CLIENT] {client} sending request: {method}({param})")
+
+    # Marshalling: preparing arguments for transmission
+    print(f"[CLIENT] Marshalling parameter: {param}")
+
+    # Send request to server and receive result
+    result = server(method, param)
+
+    # Display returned result
+    print(f"[CLIENT] Received result: {result}")
+
+//// code ends here 
+
+
+
+
+for viva :
 
 RPC/RMI CLIENT-SERVER PROCEDURE DISPATCHER
 
